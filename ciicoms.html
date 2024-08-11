@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>文本处理与 Excel 导出</title>
+  <style>
+    body {
+      font-family: 'Helvetica Neue';
+      background-color: #fafafa;
+      padding: 0;
+      margin: 0;
+    }
+
+    #image-container {
+      width: 100%;
+      height: 100px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #image-container img {
+      width: 100%;
+      height: auto;
+    }
+
+    h1 {
+      color: #000;
+      font-size: 24px;
+      line-height: 32px;
+      margin-bottom: 24px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 240px;
+      padding: 12px;
+      border: 1px solid #999;
+      border-radius: 8px;
+      font-size: 18px;
+    }
+
+    label {
+      font-size: 18px;
+      margin-right: 12px;
+    }
+
+    select {
+      padding: 8px;
+      font-size: 18px;
+      border: 1px solid #999;
+      border-radius: 8px;
+      margin-right: 70px;  /* 新增这行样式来增加与前面元素的间距 */
+    }
+
+    button {
+      padding: 12px 24px;
+      background-color: #0070C0;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 18px;
+    }
+
+    button:hover {
+      background-color: #005090;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="image-container">
+    <img src="中智天津标.jpg" alt="中智天津标志">
+  </div>
+
+  <div style="margin-top: 60px;"> 
+    <h1>请输入 OMS 系统的杂乱文本</h1>
+    <textarea id="inputText"></textarea>
+    <label for="exportOption">选择导出选项：</label>
+    <select id="exportOption">
+      <option value="all">全部导出</option>
+      <option value="filter">筛除 0 值导出</option>
+    </select>
+    <label for="fileName">自定义文件名：</label>
+    <input type="text" id="fileName" />
+    <button onclick="processAndExport()">处理并导出 Excel</button>
+
+    <script>
+      function processAndExport() {
+        let text = document.getElementById('inputText').value;
+        let items = text.split(/\s+/);
+
+        let data = {};
+        for (let i = 0; i < items.length; i += 2) {
+          let key = items[i].slice(0, -1);
+          let value = items[i + 1];
+          data[key] = value;
+        }
+
+        let df = new Array();
+        for (let key in data) {
+          df.push([key, data[key]]);
+        }
+
+        let exportOption = document.getElementById('exportOption').value;
+        if (exportOption === 'filter') {
+          df = df.filter(item => parseFloat(item[1])!== 0);
+        }
+
+        let fileName = document.getElementById('fileName').value;
+        if (fileName) {
+          let workbook = XLSX.utils.book_new();
+          let worksheet = XLSX.utils.aoa_to_sheet(df);
+          XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+          XLSX.writeFile(workbook, fileName + '.xlsx');
+        } else {
+          let workbook = XLSX.utils.book_new();
+          let worksheet = XLSX.utils.aoa_to_sheet(df);
+          XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+          XLSX.writeFile(workbook, 'output.xlsx');
+        }
+      }
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <div style="display: flex; justify-content: center; align-items: center; margin-top: 24px;">版权所有：@鱼籽 13622120462</div>
+  </div>
+</body>
+
+</html>
